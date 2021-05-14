@@ -3,6 +3,8 @@ const router = express.Router()
 const Contacts = require('../../model/index')
 const validate = require('../../services/validation')
 
+
+// @ GET /api/contacts
 router.get('/', async (_req, res, next) => {
   try {
     const contacts = await Contacts.listContacts()
@@ -20,6 +22,8 @@ router.get('/', async (_req, res, next) => {
   }
 })
 
+
+// @ GET 
 router.get('/:contactId', async (req, res, next) => {
   try {
     const contact = await Contacts.getContactById(req.params.contactId)
@@ -46,6 +50,8 @@ router.get('/:contactId', async (req, res, next) => {
   }
 })
 
+
+// @ POST /api/contacts
 router.post('/', validate.createContact, async (req, res, next) => {
   try {
     const contact = await Contacts.addContact(req.body)
@@ -61,6 +67,8 @@ router.post('/', validate.createContact, async (req, res, next) => {
   }
 })
 
+
+// @ DELETE /api/contacts/:contactId
 router.delete('/:contactId', async (req, res, next) => {
   try {
     const contact = await Contacts.removeContact(req.params.contactId)
@@ -86,6 +94,7 @@ router.delete('/:contactId', async (req, res, next) => {
 })
 
 
+// @ PATCH /api/contacts/:contactId
 router.patch('/:contactId/name', validate.updateContact, async (req, res, next) => {
   try {
     const contact = await Contacts.updateContact(req.param.contactId, req.body)
