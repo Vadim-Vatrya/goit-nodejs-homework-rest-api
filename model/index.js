@@ -1,32 +1,14 @@
-const fs = require("fs/promises");
-const { object } = require("joi");
-const path = require("path");
-const contactsPath = path.join(__dirname, "./contacts.json");
-const shortid = require("shortid");
+const Contact = require('./db/contact')
+
 
 const listContacts = async () => {
-  try {
-    const data = await fs.readFile(contactsPath, "utf-8");
-    const contacts = JSON.parse(data);
-    return contacts;
-  } catch (err) {
-    return console.log("Error:", err.message);
-  }
+ const result = await Contact.find({})
+ return result
 };
 
 const getContactById = async (contactId) => {
-  try {
-    const contacts = await listContacts();
-    const contactById = contacts.find(({ id }) => id.toString() === contactId);
-
-    if (!contactById) {
-      return console.log(`Contact with id: ${contactById} is not found`);
-    }
-
-    return contactById;
-  } catch (err) {
-    return console.log("Error:", err.message);
-  }
+  const result = await Contact.findOne({ _id: contactId })
+  return result
 };
 
 const removeContact = async (contactId) => {
