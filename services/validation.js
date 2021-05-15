@@ -1,19 +1,20 @@
-const Joi = require("joi");
-Joi.objectId = require('joi-objectid')(Joi)
+const Joi = require("joi")
+
+
 
 const schemaCreateContact = Joi.object({
   name: Joi.string().min(3).max(30).required(),
-  phone: Joi.string().min(3).max(11).required(),
+  phone: Joi.string().min(3).max(13).required(),
   email: Joi.string()
-    .email({ minDomainSegments: 2, tlds: { allow: ["com", "net", "ua"] } })
+    .email({ minDomainSegments: 2, tlds: { allow: ["com", "net", "ua", 'ru'] } })
     .required(),
 })
 
 const schemaUpdateContact = Joi.object({
   name: Joi.string().min(3).max(30).optional(),
-  phone: Joi.string().min(3).max(11).optional(),
+  phone: Joi.string().min(3).max(13).optional(),
   email: Joi.string()
-    .email({ minDomainSegments: 2, tlds: { allow: ["com", "net", "ua"] } })
+    .email({ minDomainSegments: 2, tlds: { allow: ["com", "net", "ua", 'ru'] } })
     .optional(),
 })
 
