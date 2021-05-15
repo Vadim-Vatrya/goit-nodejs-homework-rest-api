@@ -6,7 +6,7 @@ const schemaCreateContact = Joi.object({
   email: Joi.string()
     .email({ minDomainSegments: 2, tlds: { allow: ["com", "net", "ua"] } })
     .required(),
-});
+})
 
 const schemaUpdateContact = Joi.object({
   name: Joi.string().min(3).max(30).optional(),
@@ -14,12 +14,16 @@ const schemaUpdateContact = Joi.object({
   email: Joi.string()
     .email({ minDomainSegments: 2, tlds: { allow: ["com", "net", "ua"] } })
     .optional(),
-});
+})
 
 const schemaUpdateContactStatus = Joi.object({
   favotite: Joi.boolean().required(),
 })
 
+
+const schemaId = Joi.object({
+  id: Joi.objectId().required()
+})
 
 const validate = (schema, body, next) => {
   const { error } = schema.validate(body)
@@ -42,3 +46,12 @@ module.exports.createContact = (req, _res, next) => {
 module.exports.updateContact = (req, _res, next) => {
   return validate(schemaUpdateContact, req.body, next)
 }
+
+module.exports.updateContactStatus = (req, _res, next) => {
+  return validate(schemaUpdateContactStatus, req.body, next)
+}
+
+module.exports.validateId = (req, _res, next) => {
+  return validate(schemaId, {id: req.params.ContactId}, next)
+}
+
