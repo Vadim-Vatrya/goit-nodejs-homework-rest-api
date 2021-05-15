@@ -7,16 +7,17 @@ const {
   addContact,
   updateContact,
   updateContactStatus,
-} = require("../../model/index");
-const validate = require("../../services/validation");
+} = require("../../model/index")
+const validate = require('../../services/validation')
+const { HttpCode } = require('../../helpers/constans')
 
 // @ GET /api/contacts
 router.get("/", async (_req, res, next) => {
   try {
     const contacts = await listContacts();
-    return res.json({
+    return res.status(HttpCode.OK).json({
       status: "Success",
-      code: 200,
+      code: HttpCode.OK,
       message: "Contacts found",
       data: {
         contacts,
@@ -25,17 +26,17 @@ router.get("/", async (_req, res, next) => {
   } catch (error) {
     next(error);
   }
-});
+})
 
 // @ GET /api/contacts/:contactId
-router.get("/:contactId", async (req, res, next) => {
+router.get("/:contactId", validate.validateObjId, async (req, res, next) => {
   try {
     const contact = await getContactById(req.params.contactId);
 
     if (contact) {
-      return res.json({
+      return res.status(HttpCode.OK).json({
         status: "Success",
-        code: 200,
+        code: HttpCode.OK,
         message: "Contact found",
         data: {
           contact,
@@ -43,116 +44,123 @@ router.get("/:contactId", async (req, res, next) => {
       });
     }
 
-    return res.status(404).json({
+    return res.status(HttpCode.NOT_FOUND).json({
       status: "Error",
-      code: 404,
+      code: HttpCode.NOT_FOUND,
       message: "Not Found",
     });
   } catch (error) {
     next(error);
   }
-});
+})
 
 // @ POST /api/contacts
-router.post("/", validate.createContact, async (req, res, next) => {
-  try {
-    const contact = await addContact(req.body);
-    return res.status(201).json({
-      status: "Success",
-      code: 201,
-      message: "Contact created",
-      data: { contact },
-    });
-  } catch (error) {
-    next(error);
+router.post(
+  "/",
+  validate.validateObjId,
+  validate.createContact,
+  async (req, res, next) => {
+    try {
+      const contact = await addContact(req.body);
+      return res.status(HttpCode.CREATED).json({
+        status: "Success",
+        code: HttpCode.CREATED,
+        message: "Contact created",
+        data: { contact },
+      });
+    } catch (error) {
+      next(error);
+    }
   }
-});
+)
 
 // @ DELETE /api/contacts/:contactId
-router.delete("/:contactId", async (req, res, next) => {
+router.delete("/:contactId", validate.validateObjId, async (req, res, next) => {
   try {
     const contact = await removeContact(req.params.contactId);
     if (contact) {
-      return res.json({
+      return res.status(HttpCode.OK).json({
         status: "Success",
-        code: 200,
+        code: HttpCode.OK,
         message: "Contact deleted",
         data: {
           contact,
         },
       });
     } else {
-      return res.status(404).json({
+      return res.status(HttpCode.NOT_FOUND).json({
         status: "Error",
-        code: 404,
+        code: HttpCode.NOT_FOUND,
         message: "Not Found",
       });
     }
   } catch (error) {
     next(error);
   }
-});
+})
 
 // @ PUT /api/contacts/:contactId
-router.put("/:contactId", validate.updateContact, async (req, res, next) => {
-  try {
-    const contact = await updateContact(req.params.contactId, req.body);
-    if (contact) {
-      return res
-        .status(200)
-        .json({
+router.put(
+  "/:contactId",
+  validate.validateObjId,
+  validate.updateContact,
+  async (req, res, next) => {
+    try {
+      const contact = await updateContact(req.params.contactId, req.body);
+      if (contact) {
+        return res.status(HttpCode.OK).json({
           status: "Success",
-          code: 200,
+          code: HttpCode.OK,
           message: "Contact updated successfully",
           data: { contact },
-        });
-    }
+        })
+      }
 
-    return res.status(404).json({
-      status: "Error",
-      code: 404,
-      message: "Not Found",
-    });
-  } catch (error) {
-    next(error);
+      return res.status(HttpCode.NOT_FOUND).json({
+        status: "Error",
+        code: HttpCode.NOT_FOUND,
+        message: "Not Found",
+      });
+    } catch (error) {
+      next(error)
+    }
   }
-});
+)
 
 // @ PATCH /api/contacts/:contactId/favorite
 
 router.patch(
   "/:contactId/favorite",
   validate.updateContactStatus,
+  validate.validateObjId,
   async (req, res, next) => {
     try {
       if (!req.body.favorite) {
-        return res.status(400).json({
+        return res.status(HttpCode.BAD_REQUEST).json({
           status: "Error",
-          code: 400,
+          code: HttpCode.BAD_REQUEST,
           message: "missing field favorite",
         });
       }
       const contact = await updateContactStatus(req.params.contactId, req.body);
       if (contact) {
-        return res.status(200).json({
+        return res.status(HttpCode.OK).json({
           status: "Success",
-          code: 200,
+          code: HttpCode.OK,
           message: "Contact updated successfully",
-          data: {
-            contact
-          },
+          data: { contact },
         });
       }
 
-      return res.status(404).json({
+      return res.status(HttpCode.NOT_FOUND).json({
         status: "Error",
-        code: 404,
+        code: HttpCode.NOT_FOUND,
         message: "Not Found",
       });
     } catch (error) {
-      next(error);
+      next(error)
     }
   }
 );
 
-module.exports = router;
+module.exports = router
