@@ -1,4 +1,5 @@
 const Joi = require("joi");
+Joi.objectId = require('joi-objectid')(Joi)
 
 const schemaCreateContact = Joi.object({
   name: Joi.string().min(3).max(30).required(),
@@ -21,9 +22,7 @@ const schemaUpdateContactStatus = Joi.object({
 })
 
 
-const schemaId = Joi.object({
-  id: Joi.objectId().required()
-})
+
 
 const validate = (schema, body, next) => {
   const { error } = schema.validate(body)
@@ -51,7 +50,4 @@ module.exports.updateContactStatus = (req, _res, next) => {
   return validate(schemaUpdateContactStatus, req.body, next)
 }
 
-module.exports.validateId = (req, _res, next) => {
-  return validate(schemaId, {id: req.params.ContactId}, next)
-}
 
