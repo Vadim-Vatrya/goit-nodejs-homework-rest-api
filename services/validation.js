@@ -16,14 +16,20 @@ const schemaUpdateContact = Joi.object({
     .optional(),
 });
 
-const Validate = (schema, obj, next) => {
-  const { error } = schema.validate(obj)
+const schemaUpdateContactStatus = Joi.object({
+  favotite: Joi.boolean().required(),
+})
+
+
+const validate = (schema, body, next) => {
+  const { error } = schema.validate(body)
 
   if (error) {
     const [{ message }] = error.details
     return next({
       status: 400,
-      message: `Filed: ${message.replace(/"/g, '')}`
+      message: `Filed: ${message.replace(/"/g, '')}`,
+      data: 'Bad Request',
     })
   }
   next()

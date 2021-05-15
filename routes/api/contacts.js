@@ -23,7 +23,7 @@ router.get('/', async (_req, res, next) => {
 })
 
 
-// @ GET 
+// @ GET /api/contacts/:contactId
 router.get('/:contactId', async (req, res, next) => {
   try {
     const contact = await Contacts.getContactById(req.params.contactId)
@@ -94,10 +94,37 @@ router.delete('/:contactId', async (req, res, next) => {
 })
 
 
-// @ PATCH /api/contacts/:contactId
-router.patch('/:contactId/name', validate.updateContact, async (req, res, next) => {
+// @ PUT /api/contacts/:contactId
+router.put('/:contactId', validate.updateContact, async (req, res, next) => {
   try {
     const contact = await Contacts.updateContact(req.param.contactId, req.body)
+    if (contact) {
+      return res.json({
+        status: 'Success',
+        code: 200,
+        message: 'Contact updated successfully',
+        data: { 
+          contact 
+        }
+      })
+    }
+  
+    return res.status(404).json({
+      status: 'Error',
+      code: 404,
+      message: 'Not Found'
+    })
+    
+  } catch(error) {
+    next(error)
+  }
+})
+
+// @ PATCH /api/contacts/:contactId/favorite
+
+router.patch('/:contactId/favorite',  async (req, res, next) => {
+  try {
+    const contact = await Contacts.updateContactStatus(req.param.contactId, req.body)
     if (contact) {
       return res.json({
         status: 'Success',
