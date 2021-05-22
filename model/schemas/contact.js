@@ -11,10 +11,6 @@ const ContactSchema = new Schema({
     type: String,
     unique: true,
     required: [true, 'Set email for contact'],
-    validate(value) {
-      const re = /\S+@\S+\.\S+/
-      return re.test(String(value).toLocaleLowerCase())
-    }
   },
   phone: {
     type: String,
