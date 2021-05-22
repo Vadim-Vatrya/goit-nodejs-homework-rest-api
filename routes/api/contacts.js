@@ -15,6 +15,6 @@ router
   .patch('/:contactId', validate.validateObjId, validate.updateContact, contactsControllers.update)
 
 router
-.patch('/:contactId/', validate.validateObjId, validate.updateContactStatus, contactsControllers.update)
+.patch('/:contactId/favorite', validate.validateObjId, validate.updateContactStatus, contactsControllers.updateStatus)
 
 module.exports = router;
