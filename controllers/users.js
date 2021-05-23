@@ -46,14 +46,20 @@ const login = async (req, res, next) => {
   } 
 
  
-  const payload = { id: user.id }
+  const id = user._id;
+    const payload = { id };
   const token = jwt.sign(payload, JWT_SECRET_KEY, { expiresIn: '6h' })
-  await Users.updateToken(user.id, token)
+  await Users.updateToken(id, token)
   return res.status(HttpCode.OK).json({
     status: "success",
     code: HttpCode.OK,
     data: {
       token,
+      user: {
+        // id: user.id,
+        email: user.email,
+        subscription: user.subscription,
+      },
     },
   })
 }

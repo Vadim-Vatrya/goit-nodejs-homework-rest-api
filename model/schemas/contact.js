@@ -1,15 +1,17 @@
 const mongoose = require('mongoose')
-const{ Schema,  SchemaTypes } = mongoose
+const { Schema, model, SchemaTypes } = mongoose
 
 const ContactSchema = new Schema({
   name: {
     type: String,
-    unique: true,
+    // unique: true,
     required: [true, 'Set name for contact'],
+    min: 3,
+    max: 30,
   },
   email: {
     type: String,
-    unique: true,
+    // unique: true,
     required: [true, 'Set email for contact'],
   },
   phone: {
@@ -37,4 +39,5 @@ const ContactSchema = new Schema({
 },)
 
 const Contact = mongoose.model('contact', ContactSchema)
+
 module.exports = Contact

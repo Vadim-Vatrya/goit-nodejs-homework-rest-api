@@ -13,6 +13,7 @@ const {HttpCode} = require('../helpers/constans')
 // @ GET /api/contacts
 const getAll = async (req, res, next) => {
   try {
+    // console.log(req.user)
     const userId = req.user.id
     const contacts = await listContacts(userId);
     return res.status(HttpCode.OK).json({
@@ -59,7 +60,10 @@ const getById =  async (req, res, next) => {
   const create = async (req, res, next) => {
     try {
       const userId = req.user.id
-      const contact = await addContact({...req.body, owner: userId});
+      const contact = await addContact({
+        ...req.body,
+        owner: userId,
+    })
       return res.status(HttpCode.CREATED).json({
         status: "Success",
         code: HttpCode.CREATED,
