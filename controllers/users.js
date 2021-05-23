@@ -5,7 +5,7 @@ const Users = require('../model/users')
 const { HttpCode } = require('../helpers/constans')
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY
 
-// /auth/register
+// /register
 const register = async (req, res, next) => {
   try {
     const { email } = req.body
@@ -34,7 +34,7 @@ const register = async (req, res, next) => {
   }
 }
 
-// /auth/login
+// /login
 const login = async (req, res, next) => {
   try {
     const {email, password} = req.body
@@ -67,7 +67,7 @@ const login = async (req, res, next) => {
   }
 };
 
-// /auth/logout
+// /logout
 const logout = async (req, res, next) => {
   try {
     await Users.updateToken(req.user.id)

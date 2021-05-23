@@ -3,13 +3,13 @@ const Contact = require('./schemas/contact')
 
 const listContacts = async (userId, query) => {
   const {
-    limit = 5,
+    limit =20,
     offset = 0,
-    page = 0,
+    page = 1,
     sortBy,
     sortByDesc,
     filter,
-    favorite = false,
+    favorite = null,
   } = query
 
   const optionsSearch = { owner: userId }

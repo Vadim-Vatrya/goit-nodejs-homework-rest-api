@@ -8,12 +8,12 @@ const getAll = async (req, res, next) => {
   try {
     // console.log(req.user)
     const userId = req.user.id
-    const contacts = await Contacts.listContacts(userId, req.query);
+    const { contacts, total, limit, page} = await Contacts.listContacts(userId, req.query);
     return res.status(HttpCode.OK).json({
       status: "Success",
       code: HttpCode.OK,
       message: "Contacts found",
-      data: { contacts },
+      data: { total, limit, page, contacts },
     });
   } catch (error) {
     next(error);
@@ -41,6 +41,12 @@ const getById =  async (req, res, next) => {
       message: "Not Found",
     })
   } catch (error) {
+    if (error.name === 'ValidationError') {
+      return next({
+        status: HttpCode.NOT_FOUND,
+        message: 'Not Found',
+      });
+    }
     next(error);
   }
 }
@@ -59,8 +65,8 @@ const create = async (req, res, next) => {
           code: HttpCode.CREATED,
           data: {contact},
       })
-  } catch (e) {
-      next(e)
+  } catch (error) {
+      next(error)
   }
 }
 
