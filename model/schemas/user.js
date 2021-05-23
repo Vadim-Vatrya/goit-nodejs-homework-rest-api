@@ -17,6 +17,7 @@ const userSchema = new Schema({
   password: {
     type: String,
     required: [true, 'Password is required'],
+    minlength: 6,
 
   },
   subscription: {
@@ -46,6 +47,6 @@ userSchema.methods.validPassword = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
 
-const user = mongoose.model('contact', userSchema)
+const user = mongoose.model('user', userSchema)
 
 module.exports = user
