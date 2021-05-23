@@ -10,7 +10,7 @@ const userSchema = new Schema({
     unique: true,
     validate(value) {
       const re = /\S+@\S+\.\S+/
-      return re.test(String(value).toLocaleLowerCase())
+      return re.test(String(value).toLowerCase())
     }
   },
 
@@ -47,6 +47,6 @@ userSchema.methods.validPassword = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
 
-const user = mongoose.model('user', userSchema)
+const User = mongoose.model('user', userSchema)
 
-module.exports = user
+module.exports = User

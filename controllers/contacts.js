@@ -1,11 +1,4 @@
-const {
-  listContacts,
-  getContactById,
-  removeContact,
-  addContact,
-  updateContact,
-  updateContactStatus
- } = require('../model/index')
+const Contacts = require('../model/index')
 const {HttpCode} = require('../helpers/constans')
 
 
@@ -15,14 +8,12 @@ const getAll = async (req, res, next) => {
   try {
     // console.log(req.user)
     const userId = req.user.id
-    const contacts = await listContacts(userId);
+    const contacts = await Contacts.listContacts(userId, req.query);
     return res.status(HttpCode.OK).json({
       status: "Success",
       code: HttpCode.OK,
       message: "Contacts found",
-      data: {
-        contacts,
-      },
+      data: { contacts },
     });
   } catch (error) {
     next(error);
@@ -33,16 +24,14 @@ const getAll = async (req, res, next) => {
 const getById =  async (req, res, next) => {
   try {
     const userId = req.user.id
-    const contact = await getContactById(userId, req.params.contactId);
+    const contact = await Contacts.getContactById(userId, req.params.contactId);
 
     if (contact) {
       return res.status(HttpCode.OK).json({
         status: "Success",
         code: HttpCode.OK,
         message: "Contact found",
-        data: {
-          contact,
-        },
+        data: {contact},
       });
     }
 
@@ -50,44 +39,42 @@ const getById =  async (req, res, next) => {
       status: "Error",
       code: HttpCode.NOT_FOUND,
       message: "Not Found",
-    });
+    })
   } catch (error) {
     next(error);
   }
 }
 
 // @ POST /api/contacts
-  const create = async (req, res, next) => {
-    try {
+
+const create = async (req, res, next) => {
+  try {
       const userId = req.user.id
-      const contact = await addContact({
-        ...req.body,
-        owner: userId,
-    })
+      const contact = await Contacts.addContact({
+          ...req.body,
+          owner: userId,
+      })
       return res.status(HttpCode.CREATED).json({
-        status: "Success",
-        code: HttpCode.CREATED,
-        message: "Contact created",
-        data: { contact },
-      });
-    } catch (error) {
-      next(error);
-    }
+          status: 'success',
+          code: HttpCode.CREATED,
+          data: {contact},
+      })
+  } catch (e) {
+      next(e)
   }
+}
 
 // @ DELETE /api/contacts/:contactId
  const remove = async (req, res, next) => {
   try {
     const userId = req.user.id
-    const contact = await removeContact(userId, req.params.contactId);
+    const contact = await Contacts.removeContact(userId, req.params.contactId);
     if (contact) {
       return res.status(HttpCode.OK).json({
         status: "Success",
         code: HttpCode.OK,
         message: "Contact deleted",
-        data: {
-          contact,
-        },
+        data: { contact },
       });
     } else {
       return res.status(HttpCode.NOT_FOUND).json({
@@ -102,11 +89,11 @@ const getById =  async (req, res, next) => {
 }
 
 
-// @ PATCH /api/contacts/:contactId
+// @ (PUT & PATCH) /api/contacts/:contactId
   const update = async (req, res, next) => {
     try {
       const userId = req.user.id
-      const contact = await updateContact(userId, req.params.contactId, req.body);
+      const contact = await Contacts.updateContact(userId, req.params.contactId, req.body);
       if (contact) {
         return res.status(HttpCode.OK).json({
           status: "Success",
@@ -128,34 +115,34 @@ const getById =  async (req, res, next) => {
 
 
 
-  const updateStatus = async (req, res, next) => {
-    try {
-      const userId = req.user.id
-      if (!req.body.favorite) {
-        return res.status(HttpCode.BAD_REQUEST).json({
-          status: 'error',
-          code: HttpCode.BAD_REQUEST,
-          message: 'missing field favorite',
-        });
-      }
-      const contact = await updateContactStatus(
-        userId,
-        req.params.contactId,
-        req.body,
-      );
-      if (contact) {
-        return res
-          .status(HttpCode.OK)
-          .json({ status: 'success', code: HttpCode.OK, data: { contact } });
-      }
+  // const updateStatus = async (req, res, next) => {
+  //   try {
+  //     const userId = req.user.id
+  //     if (!req.body.favorite) {
+  //       return res.status(HttpCode.BAD_REQUEST).json({
+  //         status: 'error',
+  //         code: HttpCode.BAD_REQUEST,
+  //         message: 'missing field favorite',
+  //       });
+  //     }
+  //     const contact = await Contacts.updateContactStatus(
+  //       userId,
+  //       req.params.contactId,
+  //       req.body,
+  //     );
+  //     if (contact) {
+  //       return res
+  //         .status(HttpCode.OK)
+  //         .json({ status: 'success', code: HttpCode.OK, data: { contact } });
+  //     }
 
-      return res
-        .status(HttpCode.NOT_FOUND)
-        .json({ status: 'error', code: HttpCode.NOT_FOUND, message: 'Not found' });
-    } catch (error) {
-      next(error);
-    }
-  }
+  //     return res
+  //       .status(HttpCode.NOT_FOUND)
+  //       .json({ status: 'error', code: HttpCode.NOT_FOUND, message: 'Not found' });
+  //   } catch (error) {
+  //     next(error);
+  //   }
+  // }
 
 
 
@@ -164,6 +151,5 @@ module.exports ={
   create,
   remove,
   getById,
-  update,
-  updateStatus,
+  update
 }

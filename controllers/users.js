@@ -5,6 +5,7 @@ const Users = require('../model/users')
 const { HttpCode } = require('../helpers/constans')
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY
 
+// /auth/register
 const register = async (req, res, next) => {
   try {
     const { email } = req.body
@@ -22,7 +23,7 @@ const register = async (req, res, next) => {
       code: HttpCode.CREATED,
       data: {
         user: {
-          id: newUser.id,
+          // id: newUser.id,
           email: newUser.email,
           subscription: newUser.subscription,
         },
@@ -33,6 +34,7 @@ const register = async (req, res, next) => {
   }
 }
 
+// /auth/login
 const login = async (req, res, next) => {
   try {
     const {email, password} = req.body
@@ -45,18 +47,15 @@ const login = async (req, res, next) => {
     })
   } 
 
- 
-  const id = user._id;
-    const payload = { id };
+  const payload = { id: user.id }
   const token = jwt.sign(payload, JWT_SECRET_KEY, { expiresIn: '6h' })
-  await Users.updateToken(id, token)
+  await Users.updateToken(user.id, token)
   return res.status(HttpCode.OK).json({
     status: "success",
     code: HttpCode.OK,
     data: {
       token,
       user: {
-        // id: user.id,
         email: user.email,
         subscription: user.subscription,
       },
@@ -68,20 +67,52 @@ const login = async (req, res, next) => {
   }
 };
 
+// /auth/logout
 const logout = async (req, res, next) => {
-  const id = req.user?.id
-  const user = await Users.getUserById(id)
-  if (!user) {
-    return res.status(HttpCode.UNAUTHORIZED).json({
-      message: 'Not authorized',
+  try {
+    await Users.updateToken(req.user.id)
+    return res.status(HttpCode.NO_CONTENT).json({
+      status: "success",
+      code: HttpCode.NO_CONTENT,
     })
+  } catch(e) {
+    next(e)
   }
-  await Users.updateToken(id, null)
-  return res.status(HttpCode.NO_CONTENT).json({})
-};
+}
+
+
+// /current
+const current = async (req, res, next) => {
+  try {
+      const userId = req.user.id
+      const currentUser = await Users.findById(userId)
+
+      if (currentUser) {
+          return res.status(HttpCode.OK).json({
+              status: 'success',
+              code: HttpCode.OK,
+              data: {
+                  email: currentUser.email,
+                  subscription: currentUser.subscription,
+              },
+          })
+      } else {
+          return res.status(HttpCode.UNAUTHORIZED).json({
+              status: 'error',
+              code: HttpCode.UNAUTHORIZED,
+              data: 'Unauthorized',
+              message: 'Not authorized',
+          })
+      }
+  } catch (e) {
+      next(e)
+  }
+}
+
 
 module.exports = {
   register,
   login,
   logout,
-};
+  current,
+}
