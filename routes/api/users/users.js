@@ -8,6 +8,7 @@ router.post('/register', validateUserReg, userControllers.register)
 router.post('/login', validateUserLogin, userControllers.login)
 router.post('/logout', guard, userControllers.logout)
 router.post('/current', guard, userControllers.current)
+router.patch('/', guard, userControllers.updateSuscription)
 
 
 module.exports = router

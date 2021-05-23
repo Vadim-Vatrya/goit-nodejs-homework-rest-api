@@ -110,9 +110,33 @@ const current = async (req, res, next) => {
 }
 
 
+// /update/subscription
+
+const updateSuscription = async (req, res, next) => {
+  const userId = req.user.id
+  try{
+    await Users.updateSuscriptionUser(userId, req.body.subscription)
+    const user = await Users.findById(userId)
+    return res.json({
+      status: 'success',
+      code: HttpCode.OK,
+      data: {
+        user: {
+          email: user.email,
+          subscription: user.subscription,
+        },
+      },
+    })
+  } catch(error) {
+    next(error)
+  }
+}
+
+
 module.exports = {
   register,
   login,
   logout,
   current,
+  updateSuscription,
 }

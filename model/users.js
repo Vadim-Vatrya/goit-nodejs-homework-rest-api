@@ -10,16 +10,20 @@ const findByEmail = async (email) => {
 
 const create = async ({ email, password, subscription }) => {
   const user = new User({ email, password, subscription })
-  return user.save()
+  return await user.save()
 }
 
 const updateToken = async (id, token) => {
-  return User.updateOne({ _id: id, }, { token })
+  return await User.updateOne({ _id: id, }, { token })
 }
 
+const updateSuscriptionUser = async (id, subscription) =>{
+  return await User.updateOne({ _id: id, }, {subscription})
+}
 module.exports = {
   findById,
   findByEmail,
   create,
   updateToken,
+  updateSuscriptionUser,
 }

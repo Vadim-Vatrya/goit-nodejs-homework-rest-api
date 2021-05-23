@@ -9,8 +9,8 @@ const limiter = rateLimit({
       status: 'error',
       code: HttpCode.BAD_REQUEST,
       message: 'Too many requests, please try again later.',
-    });
+    })
   },
-});
+})
 
 module.exports = limiter
