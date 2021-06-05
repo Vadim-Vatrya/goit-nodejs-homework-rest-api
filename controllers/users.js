@@ -156,7 +156,7 @@ const avatars = async (req, res, next) => {
         data: { avatarUrl },
       })
   } catch(error) {
-
+    next(error)
   }
 }
 
