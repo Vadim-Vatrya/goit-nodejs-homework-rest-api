@@ -1,4 +1,7 @@
 const jwt = require('jsonwebtoken')
+const cloudinary = require("cloudinary").v2
+const { promisify } = require("util")
+
 require('dotenv').config()
 
 const UploadAvatar = require('../services/upload-avatars-local')
@@ -8,6 +11,12 @@ const { HttpCode } = require('../helpers/constans')
 const AVATARS_OF_USERS = process.env.AVATARS_OF_USERS
 
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY
+
+cloudinary.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.API_KEY,
+  api_secret: process.env.API_SECRET,
+})
 
 // /register
 const register = async (req, res, next) => {
