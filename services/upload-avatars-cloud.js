@@ -7,8 +7,8 @@ class Upload {
 
   async saveAvatarToCloud (pathFile, userIdImg) {
     const { public_id: publicId, secure_url: secureUrl } = await this.uploadCloud(pathFile, {
-      public_id: userIdImg?.replace('Photos/', ''),
-      folder: 'Photos',
+      public_id: userIdImg?.replace('Photo/', ''),
+      folder: 'Photo',
       transformation: { widts: 250, crop: 'pad' }
     })
 

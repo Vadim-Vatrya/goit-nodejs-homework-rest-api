@@ -21,17 +21,25 @@ const userSchema = new Schema({
     minlength: 6,
 
   },
+
   subscription: {
     type: String,
     enum: ["starter", "pro", "business"],
     default: "starter"
   },
+
+  userIdImg: {
+    type: String,
+    default: null,
+  },
+
   avatar: {
     type: String,
     default: function () {
       return gravatar.url(this.email, { s: 250 }, true)
     }
   },
+  
   token: {
     type: String,
     default: null,
