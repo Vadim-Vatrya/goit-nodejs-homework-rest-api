@@ -4,12 +4,17 @@ const { promisify } = require("util")
 
 require('dotenv').config()
 
-// const UploadAvatar = require('../services/upload-avatars-local')
+
 const UploadAvatar = require('../services/upload-avatars-cloud')
 const Users = require('../model/users')
 const { HttpCode } = require('../helpers/constans')
+const EmailService = require('../services/email')
+const {
+  CreateSenderNodemailer,
+  CreateSenderSendgrid,
+} = require('../services/sender-email')
 
-// const AVATARS_OF_USERS = process.env.AVATARS_OF_USERS
+
 
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY
 
@@ -32,13 +37,23 @@ const register = async (req, res, next) => {
       })
     }
     const newUser = await Users.create(req.body)
-    const { id, email, subscription, verifyToken } = newUser
+    const { id, name, subscription, verifyToken } = newUser
+    try {
+      const emailService = new EmailService(
+        process.env.NODE_ENV,
+        new CreateSenderSendgrid(),
+      )
+      await emailService.sendVerifyPasswordEmail(verifyToken, email, name)
+    } catch(e) {
+      console.log(e.message);
+    }
     return res.status(HttpCode.CREATED).json({
       status: "success",
       code: HttpCode.CREATED,
       data: {
         user: {
           id,
+          name,
           email,
           subscription,
        
@@ -151,16 +166,6 @@ const updateSuscription = async (req, res, next) => {
 
 const avatars = async (req, res, next) => {
   try {
-    // const userId = req.user.id
-    // const uploads = new UploadAvatar(AVATARS_OF_USERS)
-    // const avatarUrl = await uploads.saveAvatarToStatic({
-    //     userId: userId,
-    //     pathFile: req.file.path,
-    //     name: req.file.filename,
-    //     oldFile: req.user.avatar,
-    //   })
-    //   await Users.updateAvatar(userId, avatarUrl)
-
     const userId = req.user.id;
     const uploadCloud = promisify(cloudinary.uploader.upload);
     const uploads = new UploadAvatar(uploadCloud);

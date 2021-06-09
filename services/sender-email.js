@@ -1,7 +1,8 @@
 const sgMail = require('@sendgrid/mail')
 const nodemailer = require('nodemailer')
+const config = require('../config/config')
 
-require('dotevn').config()
+require('dotenv').config()
 
 class CreateSenderSendgrid {
   async send(msg) {
