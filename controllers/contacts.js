@@ -102,7 +102,7 @@ const create = async (req, res, next) => {
       const contact = await Contacts.updateContact(userId, req.params.contactId, req.body);
       if (contact) {
         return res.status(HttpCode.OK).json({
-          status: "success",
+          status: "Success",
           code: HttpCode.OK,
           message: "Contact updated successfully",
           data: { contact },
@@ -110,7 +110,7 @@ const create = async (req, res, next) => {
       }
 
       return res.status(HttpCode.NOT_FOUND).json({
-        status: "error",
+        status: "Error",
         code: HttpCode.NOT_FOUND,
         message: "Not Found",
       });

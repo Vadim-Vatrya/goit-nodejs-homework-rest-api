@@ -21,10 +21,6 @@ const schemaUserLogin = Joi.object({
     password: Joi.string().required(),
 })
 
-const schemaUpdate = Joi.object({
-  subscription: Joi.any().valid('free', 'pro', 'premium').required(),
-});
-
 const validate = async (schema, body, next) => {
   try {
     await schema.validateAsync(body);
@@ -45,7 +41,4 @@ module.exports.validateUserLogin = (req, _, next) => {
   return validate(schemaUserLogin, req.body, next)
 }
 
-module.exports.validateUpdateUser = (req, _res, next) => {
-  return validate(schemaUpdate, req.body, next)
-}
 
