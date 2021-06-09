@@ -32,16 +32,17 @@ const register = async (req, res, next) => {
       })
     }
     const newUser = await Users.create(req.body)
+    const { id, email, subscription, verifyToken } = newUser
     return res.status(HttpCode.CREATED).json({
       status: "success",
       code: HttpCode.CREATED,
       data: {
         user: {
-          // id: newUser.id,
-          email: newUser.email,
-          subscription: newUser.subscription,
-          avatar: newUser.avatar,
-        },
+          id,
+          email,
+          subscription,
+       
+                },
       },
     })
   } catch (e) {
