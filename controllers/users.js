@@ -33,7 +33,7 @@ const register = async (req, res, next) => {
       return res.status(HttpCode.CONFLICT).json({
         status: "error",
         code: HttpCode.CONFLICT,
-        message: "Email in use",
+        message: "Email is already used",
       })
     }
     const newUser = await Users.create(req.body)
@@ -43,6 +43,7 @@ const register = async (req, res, next) => {
         process.env.NODE_ENV,
         new CreateSenderSendgrid(),
       )
+      
       await emailService.sendVerifyPasswordEmail(verifyToken, email, name)
     } catch(e) {
       console.log(e.message);
@@ -55,8 +56,7 @@ const register = async (req, res, next) => {
           id,
           name,
           email,
-          subscription,
-       
+          subscription
                 },
       },
     })
@@ -186,6 +186,32 @@ const avatars = async (req, res, next) => {
   }
 }
 
+// /auth/verify/:verificationToken
+const verify = async (req, res, next) => {
+  try {
+    const user = await Users.getByVerifyToken(req.params.verificationToken);
+
+    if (user) {
+      return res.status(HttpCode.OK).json({
+        status: "Success",
+        code: HttpCode.OK,
+        message: "Verification successfull",
+      })
+    }
+
+    return res.status(HttpCode.NOT_FOUND).json({
+      status: "Error",
+      code: HttpCode.NOT_FOUND,
+      message: "User not found",
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+// 
+const repeatSendEmailVerify = async (req, res, next) => {}
+
 
 module.exports = {
   register,
@@ -194,4 +220,6 @@ module.exports = {
   current,
   updateSuscription,
   avatars,
+  verify,
+  repeatSendEmailVerify,
 }

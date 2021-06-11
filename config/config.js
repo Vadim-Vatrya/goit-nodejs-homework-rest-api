@@ -1,6 +1,9 @@
 module.exports = {
   email: {
-    sendgrid: 'vatryavadim@meta.ua',
-    nodemailer: 'VatryaVV@ex.ua',
+    sendgrid: 'VatryaVV@gmail.com',
   },
-}
+    link: {
+      localhost: "http://localhost:3000",
+      domenName: "domen name",
+    },
+  }
