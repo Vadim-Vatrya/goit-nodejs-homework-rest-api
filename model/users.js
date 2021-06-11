@@ -26,10 +26,15 @@ const updateSuscriptionUser = async (id, subscription) =>{
 }
 
 const updateAvatar = async (id, avatar, userImgId) => {
-  const body = { avatarURL: avatar, userImgId };
-  const result = await User.findByIdAndUpdate(id, { ...body });
-  return result;
-};
+  const body = { avatarURL: avatar, userImgId }
+  const result = await User.findByIdAndUpdate(id, { ...body })
+  return result
+}
+
+const updateVerifyToken = async ( id, verify, token ) => {
+  return User.updateOne({ _id: id }, { verify, verifyToken: token })
+}
+
 
 // const updateAvatar = async (id, avatar, userIdImg = null) => {
 //   return await User.updateOne({ _id: id }, { avatar, userIdImg })
@@ -43,4 +48,5 @@ module.exports = {
   updateToken,
   updateSuscriptionUser,
   updateAvatar,
+  updateVerifyToken,
 }

@@ -147,7 +147,7 @@ const updateSuscription = async (req, res, next) => {
   try{
     await Users.updateSuscriptionUser(userId, req.body.subscription)
     const user = await Users.findById(userId)
-    return res.json({
+    return res.status(HttpCode.OK).json({
       status: 'success',
       code: HttpCode.OK,
       data: {
@@ -176,7 +176,7 @@ const avatars = async (req, res, next) => {
     );
     await Users.updateAvatar(userId, avatarUrl, userIdImg);
 
-      return res.json({
+      return res.status(HttpCode.OK).json({
         status: 'success',
         code: HttpCode.OK,
         data: { avatarUrl },
@@ -192,6 +192,7 @@ const verify = async (req, res, next) => {
     const user = await Users.findUserByVerifyToken(req.params.verificationToken);
 
     if (user) {
+      await Users.updateVerifyToken(user.id, true, null)
       return res.status(HttpCode.OK).json({
         status: "Success",
         code: HttpCode.OK,
@@ -210,7 +211,39 @@ const verify = async (req, res, next) => {
 }
 
 // 
-const repeatSendEmailVerify = async (req, res, next) => {}
+const repeatSendEmailVerify = async (req, res, next) => {
+  const { email } = req.body
+  const user = await Users.findByEmail(email)
+ if (user) {
+   const { name, email, verifyToken, verify } = user
+   if (!verify) {
+    try {
+      const emailService = new EmailService(
+        process.env.NODE_ENV,
+        new CreateSenderSendgrid()
+      )
+      await emailService.sendVerifyPasswordEmail(verifyToken, email, name)
+      return res.status(HttpCode.OK).json({
+        status: "success",
+        code: HttpCode.OK,
+        message: "Verification email resubmited!",
+      })
+    } catch (err) {
+      console.log(err)
+    }
+   }
+   return res.status(HttpCode.CONFLICT).json({
+    status: "error",
+    code: HttpCode.CONFLICT,
+    nessage: "Email has already been verified",
+  })
+ } 
+ return res.status(HttpCode.NOT_FOUND).json({
+  status: 'error',
+  code: HttpCode.NOT_FOUND,
+  message: 'User not found',
+})
+}
 
 
 module.exports = {
