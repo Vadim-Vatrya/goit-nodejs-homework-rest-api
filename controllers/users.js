@@ -210,39 +210,45 @@ const verify = async (req, res, next) => {
   }
 }
 
-// 
+// user/verify/
 const repeatSendEmailVerify = async (req, res, next) => {
-  const { email } = req.body
-  const user = await Users.findByEmail(email)
- if (user) {
-   const { name, email, verifyToken, verify } = user
-   if (!verify) {
-    try {
-      const emailService = new EmailService(
-        process.env.NODE_ENV,
-        new CreateSenderSendgrid()
-      )
-      await emailService.sendVerifyPasswordEmail(verifyToken, email, name)
-      return res.status(HttpCode.OK).json({
-        status: "success",
-        code: HttpCode.OK,
-        message: "Verification email resubmited!",
+  try {
+    const user = await Users.findByEmail(req.body.email)
+
+    if (user) {
+      const { name, email, verifyToken, verify } = user
+
+      if (!verify) {
+        try {
+          const emailService = new EmailService(
+            process.env.NODE_ENV,
+            new CreateSenderSendgrid()
+          )
+          await emailService.sendVerifyPasswordEmail(verifyToken, email, name);
+          return res.status(HttpCode.OK).json({
+            status: "success",
+            code: HttpCode.OK,
+            message: "Verification email resubmited!",
+          })
+        } catch (err) {
+          console.log(err);
+        }
+      }
+      return res.status(HttpCode.CONFLICT).json({
+        status: "error",
+        code: HttpCode.CONFLICT,
+        nessage: "Email has already been verified",
       })
-    } catch (err) {
-      console.log(err)
+    } else {
+      return res.status(HttpCode.NOT_FOUND).json({
+        status: "error",
+        code: HttpCode.NOT_FOUND,
+        message: "User not found",
+      })
     }
-   }
-   return res.status(HttpCode.CONFLICT).json({
-    status: "error",
-    code: HttpCode.CONFLICT,
-    nessage: "Email has already been verified",
-  })
- } 
- return res.status(HttpCode.NOT_FOUND).json({
-  status: 'error',
-  code: HttpCode.NOT_FOUND,
-  message: 'User not found',
-})
+  } catch (err) {
+    next(err);
+  }
 }
 
 
