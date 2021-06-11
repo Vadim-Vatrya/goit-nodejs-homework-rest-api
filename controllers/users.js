@@ -189,7 +189,7 @@ const avatars = async (req, res, next) => {
 // /auth/verify/:verificationToken
 const verify = async (req, res, next) => {
   try {
-    const user = await Users.getByVerifyToken(req.params.verificationToken);
+    const user = await Users.findUserByVerifyToken(req.params.verificationToken);
 
     if (user) {
       return res.status(HttpCode.OK).json({
