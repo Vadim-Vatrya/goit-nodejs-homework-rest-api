@@ -4,12 +4,17 @@ const { promisify } = require("util")
 
 require('dotenv').config()
 
-// const UploadAvatar = require('../services/upload-avatars-local')
+
 const UploadAvatar = require('../services/upload-avatars-cloud')
 const Users = require('../model/users')
 const { HttpCode } = require('../helpers/constans')
+const EmailService = require('../services/email')
+const {
+  CreateSenderNodemailer,
+  CreateSenderSendgrid,
+} = require('../services/sender-email')
 
-// const AVATARS_OF_USERS = process.env.AVATARS_OF_USERS
+
 
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY
 
@@ -28,20 +33,31 @@ const register = async (req, res, next) => {
       return res.status(HttpCode.CONFLICT).json({
         status: "error",
         code: HttpCode.CONFLICT,
-        message: "Email in use",
+        message: "Email is already used",
       })
     }
     const newUser = await Users.create(req.body)
+    const { id, name, subscription, verifyToken } = newUser
+    try {
+      const emailService = new EmailService(
+        process.env.NODE_ENV,
+        new CreateSenderSendgrid(),
+      )
+      
+      await emailService.sendVerifyPasswordEmail(verifyToken, email, name)
+    } catch(e) {
+      console.log(e.message);
+    }
     return res.status(HttpCode.CREATED).json({
       status: "success",
       code: HttpCode.CREATED,
       data: {
         user: {
-          // id: newUser.id,
-          email: newUser.email,
-          subscription: newUser.subscription,
-          avatar: newUser.avatar,
-        },
+          id,
+          name,
+          email,
+          subscription
+                },
       },
     })
   } catch (e) {
@@ -56,7 +72,7 @@ const login = async (req, res, next) => {
     const user = await Users.findByEmail(email)
     const isValidPassword = await user?.validPassword(password)
 
-    if (!user || !isValidPassword) {
+    if (!user || !isValidPassword || !user.verify) {
       return res.status(HttpCode.UNAUTHORIZED).json({
         message: 'Email or password is wrong',
     })
@@ -131,7 +147,7 @@ const updateSuscription = async (req, res, next) => {
   try{
     await Users.updateSuscriptionUser(userId, req.body.subscription)
     const user = await Users.findById(userId)
-    return res.json({
+    return res.status(HttpCode.OK).json({
       status: 'success',
       code: HttpCode.OK,
       data: {
@@ -150,16 +166,6 @@ const updateSuscription = async (req, res, next) => {
 
 const avatars = async (req, res, next) => {
   try {
-    // const userId = req.user.id
-    // const uploads = new UploadAvatar(AVATARS_OF_USERS)
-    // const avatarUrl = await uploads.saveAvatarToStatic({
-    //     userId: userId,
-    //     pathFile: req.file.path,
-    //     name: req.file.filename,
-    //     oldFile: req.user.avatar,
-    //   })
-    //   await Users.updateAvatar(userId, avatarUrl)
-
     const userId = req.user.id;
     const uploadCloud = promisify(cloudinary.uploader.upload);
     const uploads = new UploadAvatar(uploadCloud);
@@ -170,13 +176,78 @@ const avatars = async (req, res, next) => {
     );
     await Users.updateAvatar(userId, avatarUrl, userIdImg);
 
-      return res.json({
+      return res.status(HttpCode.OK).json({
         status: 'success',
         code: HttpCode.OK,
         data: { avatarUrl },
       })
   } catch(error) {
     next(error)
+  }
+}
+
+// /auth/verify/:verificationToken
+const verify = async (req, res, next) => {
+  try {
+    const user = await Users.findUserByVerifyToken(req.params.verificationToken);
+
+    if (user) {
+      await Users.updateVerifyToken(user.id, true, null)
+      return res.status(HttpCode.OK).json({
+        status: "Success",
+        code: HttpCode.OK,
+        message: "Verification successfull",
+      })
+    }
+
+    return res.status(HttpCode.NOT_FOUND).json({
+      status: "Error",
+      code: HttpCode.NOT_FOUND,
+      message: "User not found",
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+// user/verify/
+const repeatSendEmailVerify = async (req, res, next) => {
+  try {
+    const user = await Users.findByEmail(req.body.email)
+
+    if (user) {
+      const { name, email, verifyToken, verify } = user
+
+      if (!verify) {
+        try {
+          const emailService = new EmailService(
+            process.env.NODE_ENV,
+            new CreateSenderSendgrid()
+          )
+          await emailService.sendVerifyPasswordEmail(verifyToken, email, name);
+          return res.status(HttpCode.OK).json({
+            status: "success",
+            code: HttpCode.OK,
+            message: "Verification email resubmited!",
+          })
+        } catch (err) {
+          console.log(err);
+        }
+      }
+      return res.status(HttpCode.CONFLICT).json({
+        status: "error",
+        code: HttpCode.CONFLICT,
+        nessage: "Email has already been verified",
+      })
+    } else {
+      return res.status(HttpCode.NOT_FOUND).json({
+        status: "error",
+        code: HttpCode.NOT_FOUND,
+        message: "User not found",
+      })
+    }
+  } catch (err) {
+    next(err);
   }
 }
 
@@ -188,4 +259,6 @@ module.exports = {
   current,
   updateSuscription,
   avatars,
+  verify,
+  repeatSendEmailVerify,
 }

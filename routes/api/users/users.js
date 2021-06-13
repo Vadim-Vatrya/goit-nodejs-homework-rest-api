@@ -5,6 +5,8 @@ const { validateUserReg, validateUserLogin, validateUpdateUser } = require('./va
 const guard = require('../../../helpers/guard')
 const upload = require('../../../helpers/upload')
 
+router.get('/verify/:verificationToken', userControllers.verify)
+router.post('/verify', userControllers.repeatSendEmailVerify)
 router.post('/register', validateUserReg, userControllers.register)
 router.post('/login', validateUserLogin, userControllers.login)
 router.post('/logout', guard, userControllers.logout)
